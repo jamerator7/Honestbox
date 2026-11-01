@@ -36,7 +36,7 @@ export default async function BoxPage({ params, searchParams }: { params: Promis
         <div className="between" style={{ alignItems: 'flex-end' }}>
           <div className="stack" style={{ gap: 4 }}>
             <span className="eyebrow">Box {box.numeral}</span>
-            <h1 style={{ fontSize: '2.6rem' }}>{box.name}</h1>
+            <h1 className="foil" style={{ fontSize: "2.8rem" }}>{box.name}</h1>
           </div>
           <span className="mono" style={{ fontSize: '2rem' }}>{usd(box.price_cents)}</span>
         </div>

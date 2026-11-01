@@ -318,3 +318,15 @@ function nextMonth(m: string) {
   const dt = new Date(Date.UTC(y, mo, 1));
   return dt.toISOString().slice(0, 10);
 }
+
+/** Recent revealed pulls for the live feed. Only revealed pulls (never spoils a spin), first name and last initial only. */
+export function recentPulls(limit = 12, d: DatabaseSync = db()) {
+  const rows = d.prepare(`SELECT p.id, p.value_cents, p.created_at, w.brand, w.model, bx.name AS box_name, bx.slug AS box_slug, u.name AS user_name
+    FROM pulls p JOIN watches w ON w.id = p.watch_id JOIN boxes bx ON bx.id = p.box_id JOIN users u ON u.id = p.user_id
+    WHERE p.revealed = 1 ORDER BY p.id DESC LIMIT ?`).all(limit) as { id: number; value_cents: number; created_at: string; brand: string; model: string; box_name: string; box_slug: string; user_name: string }[];
+  return rows.map((r) => {
+    const parts = (r.user_name || 'A collector').trim().split(/\s+/);
+    const who = parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0]}.` : parts[0];
+    return { id: r.id, who, watch: `${r.brand} ${r.model}`, valueCents: r.value_cents, box: r.box_name, slug: r.box_slug, at: r.created_at };
+  });
+}

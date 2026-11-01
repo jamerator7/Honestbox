@@ -4,7 +4,7 @@
 // which is the same cumulative walk pickBand() uses. So where the pointer stops is the verifiable roll.
 
 export type Pocket = { bandId: number; label: string; valueCents: number; oddsPpm: number };
-export type Slice = Pocket & { index: number; start: number; end: number; mid: number; fill: string; ink: string; rank: number };
+export type Slice = Pocket & { index: number; start: number; end: number; mid: number; fill: string; ink: string; rank: number; tier: Tier };
 
 export const PPM = 1_000_000;
 
@@ -14,16 +14,24 @@ export function pocketsOf(snapshot: string): Pocket[] {
     .map((b) => ({ bandId: b.id, label: b.label, valueCents: b.value_cents, oddsPpm: b.odds_ppm }));
 }
 
+/** Metal tiers by value, the site's honest version of "rarity": the colour tells you what a slice is worth. */
+export type Tier = 'copper' | 'silver' | 'gold' | 'platinum';
+export const TIERS: { id: Tier; label: string; min: number; fill: [string, string]; ink: string }[] = [
+  { id: 'platinum', label: 'Platinum', min: 1_000_000, fill: ['#E7EFEC', '#CBD8D3'], ink: '#0D2219' },
+  { id: 'gold', label: 'Gold', min: 250_000, fill: ['#E2BF66', '#C9A04A'], ink: '#0D2219' },
+  { id: 'silver', label: 'Silver', min: 50_000, fill: ['#A9B4B7', '#8E9A9E'], ink: '#0D2219' },
+  { id: 'copper', label: 'Copper', min: 0, fill: ['#B9703F', '#9C5A30'], ink: '#FBF3E8' },
+];
+export function tierOf(valueCents: number) { return TIERS.find((t) => valueCents >= t.min)!; }
+
 export function slices(pockets: Pocket[]): Slice[] {
   const order = [...pockets].map((p, i) => [p.valueCents, i] as const).sort((a, b) => b[0] - a[0]).map(([, i]) => i);
   let acc = 0;
   return pockets.map((p, index) => {
     const start = (acc / PPM) * 360; acc += p.oddsPpm; const end = (acc / PPM) * 360;
-    const rank = order.indexOf(index);
-    const top = rank < 3;
-    return { ...p, index, start, end, mid: (start + end) / 2, rank,
-      fill: top ? ['#C9A85C', '#B8954A', '#A8853F'][rank] : index % 2 ? '#183329' : '#23493B',
-      ink: top ? '#10261F' : '#F1EDE3' };
+    const t = tierOf(p.valueCents);
+    return { ...p, index, start, end, mid: (start + end) / 2, rank: order.indexOf(index), tier: t.id,
+      fill: t.fill[index % 2], ink: t.ink };
   });
 }
 
