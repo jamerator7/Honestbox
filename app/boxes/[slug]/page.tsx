@@ -6,7 +6,7 @@ import { getBox, bandsFor, boxState, settings, balance, activeSeed, buybackQuote
 import { expectedValueCents, houseEdge } from '@/lib/fair.ts';
 import { usd, oneIn, pct } from '@/lib/money.ts';
 import { openBoxAction } from '../../actions.ts';
-import { WheelFace } from '@/components/Roulette.tsx';
+import { LeverMachine } from '@/components/LeverMachine.tsx';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,10 +47,10 @@ export default async function BoxPage({ params, searchParams }: { params: Promis
           <div className="card stack" style={{ gap: 2, padding: 14 }}><span className="muted" style={{ fontSize: '0.8rem' }}>Sell back any pull</span><span className="mono" style={{ fontSize: '1.05rem', lineHeight: 1.35 }}>{q.credit / 100}% as credit<br />{q.cash / 100}% as cash</span></div>
         </div>
 
-        <h2 className="eyebrow" style={{ fontFamily: 'var(--sans)' }}>The wheel: {pockets.length} watches</h2>
+        <h2 className="eyebrow" style={{ fontFamily: 'var(--sans)' }}>The drum: {pockets.length} watches</h2>
         <div className="stack" style={{ alignItems: 'center', gap: 8 }}>
-          <WheelFace pockets={pockets} rotation={0} spinning={false} size={340} />
-          <p className="muted" style={{ fontSize: '0.9rem', textAlign: 'center', maxWidth: 440 }}>Every watch in the box is a slice on the wheel, drawn to its real odds. The rarest pieces are the thin slivers marked with brass dots. Where the pointer stops is your roll, and you can verify it.</p>
+          <LeverMachine mode="preview" pockets={pockets} title={box.name} price={box.price_cents} />
+          <p className="muted" style={{ fontSize: '0.9rem', textAlign: 'center', maxWidth: 440 }}>Every watch in the box is a panel on the drum, and each panel&apos;s height is its real share of the odds. The rarest pieces are the thin bright strips. Where the payline stops is your roll, and you can verify it.</p>
         </div>
         <h2 className="eyebrow" style={{ fontFamily: 'var(--sans)' }}>What&apos;s inside, highest value first</h2>
         <div className="stack" style={{ gap: 0, borderTop: '1px solid var(--rule)' }}>

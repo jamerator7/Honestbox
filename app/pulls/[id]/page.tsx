@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Shell, Flash } from '@/components/Shell.tsx';
-import { WatchArt, artFor } from '@/components/Mark.tsx';
-import { Roulette, WheelFace } from '@/components/Roulette.tsx';
-import { pocketsOf, landedIndex } from '@/lib/wheel.ts';
+import { watchImageSrc } from '@/lib/watchArt.ts';
+import { LeverMachine } from '@/components/LeverMachine.tsx';
+import { pocketsOf } from '@/lib/wheel.ts';
 import { requireUser } from '@/lib/auth.ts';
 import { getPull, buybackQuote, settings, shipFee, valueBasis, flag } from '@/lib/engine.ts';
 import { usd, oneIn } from '@/lib/money.ts';
@@ -21,7 +21,6 @@ export default async function PullPage({ params, searchParams }: { params: Promi
   const change = p.market_cents - p.value_cents;
   const changePct = p.value_cents ? (change / p.value_cents) * 100 : 0;
   const daysLeft = Math.max(0, Math.ceil((Date.parse(p.hold_until) - Date.now()) / 86400_000));
-  const art = artFor(p.brand);
   const reveal = revealAction.bind(null, p.id);
   const pockets = pocketsOf(p.odds_snapshot);
 
@@ -30,14 +29,15 @@ export default async function PullPage({ params, searchParams }: { params: Promi
       <div className="narrow page stack" style={{ gap: 20 }}>
         <span className="eyebrow">{p.box_name} · {usd(p.price_cents)} · pull #{p.id}</span>
         <Flash sp={sp} />
-        {!p.revealed ? <Roulette pockets={pockets} onSpin={reveal} /> : (
+        {!p.revealed ? <LeverMachine mode="live" pockets={pockets} onSpin={reveal} title={p.box_name} price={p.price_cents} /> : (
           <div className="stack rise" style={{ gap: 18 }}>
             <div style={{ display: 'grid', placeItems: 'center' }}>
-              <WheelFace pockets={pockets} rotation={-(p.roll_ppm / 1_000_000) * 360} spinning={false} size={230} highlight={landedIndex(pockets, p.roll_ppm)} />
+              <LeverMachine mode="rest" pockets={pockets} roll={p.roll_ppm} title={p.box_name} price={p.price_cents} />
             </div>
             <div className="cert stack" style={{ alignItems: 'center', gap: 14, textAlign: 'center', padding: '24px 20px' }}>
               <span className="pill pill-brass">{p.band_odds >= 500_000 ? 'Most common pull' : `${oneIn(p.band_odds)} pull`}</span>
-              <WatchArt size={150} dial={art.dial} bezel={art.bezel} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={watchImageSrc(`${p.brand} ${p.model}`)} alt={`${p.brand} ${p.model}`} width={170} height={170} />
               <div className="stack" style={{ gap: 4 }}>
                 <h1 style={{ fontSize: '2rem' }}>{p.brand} {p.model}</h1>
                 <span className="muted" style={{ fontSize: '0.9rem' }}>{[p.reference && `Ref. ${p.reference}`, p.size_mm && `${p.size_mm} mm`, p.year, p.condition, p.papers].filter(Boolean).join(' · ')}</span>
@@ -94,7 +94,7 @@ export default async function PullPage({ params, searchParams }: { params: Promi
               <div className="stack" style={{ gap: 6, marginTop: 10, wordBreak: 'break-all' }}>
                 <span>Server seed hash: <span className="mono">{p.server_hash}</span></span>
                 <span>Client seed: <span className="mono">{p.client_seed}</span> · Nonce: <span className="mono">{p.nonce}</span></span>
-                <span>Roll: <span className="mono">{p.roll_ppm.toLocaleString('en-US')}</span> of 1,000,000, so the pointer stopped {((p.roll_ppm / 1_000_000) * 360).toFixed(2)}° clockwise from the start of the first slice · Watch: {p.band_label}</span>
+                <span>Roll: <span className="mono">{p.roll_ppm.toLocaleString('en-US')}</span> of 1,000,000, so the payline stopped {((p.roll_ppm / 1_000_000) * 100).toFixed(4)}% of the way around the drum, counting from the top of the first panel · Watch: {p.band_label}</span>
                 {p.revealed_at
                   ? <span>Server seed (revealed): <span className="mono">{p.server_seed}</span></span>
                   : <span className="muted">The server seed is revealed when you rotate your seed on the <Link href="/fair">provably fair</Link> page.</span>}
