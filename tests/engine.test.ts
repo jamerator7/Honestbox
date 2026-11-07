@@ -37,10 +37,10 @@ test('seeded boxes publish a 20% edge and odds that sum to 100%', () => {
   }
 });
 
-test('every box has at least 15 watches on its wheel, each in stock, at about a 20% edge', () => {
+test('every box has exactly 10 watches, each in stock, at about a 20% edge', () => {
   for (const box of E.listBoxes()) {
     const bands = E.bandsFor(box.id);
-    assert.ok(bands.length >= 15, `${box.name} has ${bands.length} pockets`);
+    assert.equal(bands.filter((b) => b.odds_ppm > 0).length, 10, `${box.name} has 10 watches`);
     assert.equal(new Set(bands.map((b) => b.label)).size, bands.length, `${box.name} pockets are distinct watches`);
     assert.ok(bands.every((b) => (b.stock ?? 0) >= 1), `${box.name} every pocket stocked`);
     const edge = fair.houseEdge(bands, box.price_cents);

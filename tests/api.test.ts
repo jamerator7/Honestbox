@@ -59,7 +59,7 @@ test('the full box flow: list, odds, open, hidden until revealed, reveal, lock, 
   assert.equal(sealed.fair.rollPpm, null, 'the roll is not sent before the spin');
   assert.equal(sealed.landedIndex, null);
   assert.equal(sealed.band, null, 'the landed slice is not sent before the spin');
-  assert.ok(sealed.wheel.length >= 15, 'the wheel shows every watch in the box');
+  assert.equal(sealed.wheel.length, 10, 'the wheel shows every watch in the box');
   assert.equal(sealed.wheel.reduce((a: number, w: J) => a + w.oddsPpm, 0), 1_000_000);
 
   const shown = call('POST', `pulls/${opened.body.pullId}/reveal`, {}, t).body;

@@ -31,7 +31,7 @@ export default async function Landing() {
           <div className="stack" style={{ gap: 24, position: 'relative' }}>
             <h1 className="foil">Spin the wheel for a real Rolex.</h1>
             <p className="lede">
-              Every box is a wheel of 15 or more authenticated watches, each slice drawn to its real odds. Values come from real sales,
+              Every box is a wheel of 10 authenticated watches, each slice drawn to its real odds, and none worth less than half the box price. Values come from real sales,
               the house edge is printed on the box, and anything you pull can be sold back on the spot.
             </p>
             <div className="row" style={{ gap: 14 }}>

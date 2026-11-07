@@ -293,11 +293,9 @@ function seedIfEmpty(d: DatabaseSync) {
     // Watch catalog: sample pre-owned values in cents, placeholders until live market data is connected.
     const W: Record<string, [string, string, string, number, number, number]> = {
       scout: ["Timex", "Expedition Scout", "TW4B11900", 2024, 40, 5000],
-      duro: ["Casio", "Duro MDV106", "MDV106-1A", 2024, 44, 5500],
       gshock: ["Casio", "G-Shock DW5600", "DW5600E-1V", 2024, 43, 6000],
       weekender: ["Timex", "Weekender Chronograph", "TW2R42600", 2023, 40, 7000],
       snk: ["Seiko", "5 SNK809", "SNK809", 2021, 37, 11000],
-      bambino: ["Orient", "Bambino V2", "FAC00009N0", 2023, 41, 11600],
       kamasu: ["Orient", "Kamasu", "RA-AA0003R", 2023, 42, 15800],
       mako: ["Orient", "Mako III", "RA-AA0008L", 2023, 41, 17000],
       marlin: ["Timex", "Marlin Automatic", "TW2T23000", 2022, 40, 19000],
@@ -311,27 +309,20 @@ function seedIfEmpty(d: DatabaseSync) {
       alpinist: ["Seiko", "Prospex Alpinist", "SPB121", 2022, 39, 60000],
       khaki: ["Hamilton", "Khaki Field Auto", "H70455133", 2022, 38, 68000],
       prx: ["Tissot", "PRX Powermatic 80", "T137.407.11.041.00", 2023, 40, 70000],
-      jazz: ["Hamilton", "Jazzmaster Viewmatic", "H32515135", 2022, 40, 72000],
       seastar: ["Tissot", "Seastar 2000 Professional", "T120.607.11.041.00", 2023, 46, 75000],
-      oceanstar: ["Mido", "Ocean Star 600", "M026.608.11.051.00", 2022, 43, 85000],
       c60: ["Christopher Ward", "C60 Trident Pro 300", "C60-40ADA3-S0KK0", 2023, 40, 90000],
       prxchrono: ["Tissot", "PRX Chronograph", "T137.427.11.041.00", 2023, 42, 115000],
       conquest: ["Longines", "Conquest Classic", "L2.386.4.72.6", 2021, 40, 120000],
       hydro: ["Longines", "HydroConquest", "L3.781.4.56.6", 2022, 41, 130000],
       sinn: ["Sinn", "556 I", "556.010", 2021, 38, 150000],
-      nomos: ["Nomos", "Club Campus", "708", 2022, 38, 150000],
       aquis: ["Oris", "Aquis Date", "01 733 7766 4135", 2022, 41, 170000],
       carrera: ["TAG Heuer", "Carrera Calibre 5", "WBN2111.BA0639", 2022, 39, 190000],
-      spirit: ["Longines", "Spirit 40", "L3.810.4.53.6", 2022, 40, 200000],
       ranger: ["Tudor", "Ranger 39", "79950", 2022, 39, 260000],
-      tank: ["Cartier", "Tank Must, large", "WSTA0041", 2021, 33, 280000],
       bb58: ["Tudor", "Black Bay 58", "79030N", 2021, 39, 350000],
-      superocean: ["Breitling", "Superocean 42", "A17375211B1A1", 2022, 42, 380000],
       seamaster: ["Omega", "Seamaster Diver 300M", "210.30.42.20.03.001", 2021, 42, 420000],
       snowflake: ["Grand Seiko", "Snowflake", "SBGA211", 2021, 41, 520000],
       santos: ["Cartier", "Santos, medium", "WSSA0029", 2020, 35, 600000],
       speedy: ["Omega", "Speedmaster Professional", "310.30.42.50.01.001", 2021, 42, 600000],
-      op41: ["Rolex", "Oyster Perpetual 41", "124300", 2022, 41, 850000],
       datejust: ["Rolex", "Datejust 41", "126300", 2022, 41, 1060000],
       sub: ["Rolex", "Submariner Date", "126610LN", 2022, 41, 1380000],
     };
@@ -339,11 +330,11 @@ function seedIfEmpty(d: DatabaseSync) {
     // Pockets are listed in wheel order: rare and common watches alternate around the wheel, and the provably fair
     // roll is read around the wheel in this order. Each box publishes a house edge of about 20%, and no watch in a box is worth less than half its price.
     const BOXES: [string, string, string, string, number, [string, number][]][] = [
-      ['railsplitter', 'The Railsplitter', 'I', "Casio and Timex, with a shot at a Tudor", 10000, [['bb58', 200], ['scout', 258605], ['aquis', 404], ['duro', 217241], ['prx', 2054], ['gshock', 185223], ['khaki', 2166], ['weekender', 139642], ['gent', 3143], ['snk', 60998], ['presage', 10005], ['bambino', 55341], ['promaster', 16436], ['kamasu', 31415], ['seiko5', 17127]]],
-      ['postmaster', 'The Postmaster', 'II', "Nothing under $158. Top pull: Omega Speedmaster", 25000, [['speedy', 200], ['kamasu', 299813], ['bb58', 200], ['mako', 235612], ['aquis', 200], ['marlin', 162985], ['seastar', 1723], ['seiko5', 100275], ['prx', 2166], ['promaster', 93079], ['khaki', 2384], ['presage', 37938], ['alpinist', 3610], ['tsuyosa', 28975], ['gent', 4674], ['turtle', 26166]]],
-      ['counselor', 'The Counselor', 'III', "Nothing under $295. Top pull: Rolex Submariner", 50000, [['sub', 200], ['presage', 264252], ['seamaster', 200], ['tsuyosa', 211078], ['bb58', 278], ['turtle', 193817], ['carrera', 1512], ['orientstar', 131076], ['sinn', 2913], ['gent', 45860], ['conquest', 5407], ['alpinist', 36945], ['oceanstar', 14066], ['khaki', 26113], ['seastar', 19901], ['prx', 24096], ['jazz', 22286]]],
-      ['statesman', 'The Statesman', 'IV', "Nothing under $555. Top pull: Rolex Submariner", 100000, [['sub', 263], ['gent', 176861], ['op41', 701], ['alpinist', 151013], ['santos', 1420], ['khaki', 117178], ['seamaster', 2926], ['prx', 110492], ['bb58', 4234], ['jazz', 104360], ['carrera', 14603], ['seastar', 96074], ['aquis', 18295], ['oceanstar', 74548], ['sinn', 23578], ['c60', 66394], ['conquest', 37060]]],
-      ['president', 'The President', 'V', "Nothing under $1,150. 1 in 23 pulls is $3,500 or more", 200000, [['sub', 448], ['prxchrono', 196628], ['datejust', 854], ['conquest', 177167], ['op41', 1467], ['hydro', 145633], ['speedy', 3442], ['nomos', 102584], ['snowflake', 4886], ['sinn', 102584], ['seamaster', 8244], ['aquis', 75504], ['superocean', 10533], ['carrera', 57503], ['bb58', 12883], ['spirit', 50715], ['tank', 22249], ['ranger', 26676]]],
+      ['railsplitter', 'The Railsplitter', 'I', "Casio and Timex, with a shot at a Tudor", 10000, [['bb58', 216], ['scout', 356570], ['aquis', 761], ['gshock', 259449], ['prx', 3575], ['weekender', 198289], ['presage', 16136], ['snk', 90150], ['seiko5', 26914], ['kamasu', 47940]]],
+      ['postmaster', 'The Postmaster', 'II', "Nothing under $158. Top pull: Omega Speedmaster", 25000, [['speedy', 200], ['kamasu', 316646], ['bb58', 200], ['mako', 265461], ['conquest', 2362], ['marlin', 202904], ['prx', 8688], ['promaster', 134859], ['gent', 15223], ['turtle', 53457]]],
+      ['counselor', 'The Counselor', 'III', "Nothing under $295. Top pull: Rolex Submariner", 50000, [['sub', 218], ['presage', 261896], ['seamaster', 1954], ['tsuyosa', 225412], ['bb58', 2735], ['turtle', 212976], ['sinn', 13051], ['orientstar', 164186], ['seastar', 46858], ['alpinist', 70714]]],
+      ['statesman', 'The Statesman', 'IV', "Nothing under $555. Top pull: Rolex Submariner", 100000, [['sub', 1097], ['gent', 239094], ['santos', 4429], ['alpinist', 209815], ['bb58', 10928], ['khaki', 170122], ['carrera', 30413], ['prx', 162056], ['conquest', 65683], ['c60', 106363]]],
+      ['president', 'The President', 'V', "Nothing under $1,150. 1 in 18 pulls is $3,500 or more", 200000, [['sub', 2830], ['prxchrono', 230774], ['datejust', 4516], ['conquest', 214018], ['snowflake', 15942], ['hydro', 185730], ['bb58', 32141], ['sinn', 144148], ['ranger', 54414], ['aquis', 115487]]],
     ];
     const units = (ppm: number) => (ppm < 20000 ? 1 : ppm < 100000 ? 2 : ppm < 200000 ? 4 : 6);
     BOXES.forEach(([slug, name, numeral, tagline, price, pockets], bi) => {
