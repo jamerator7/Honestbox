@@ -76,6 +76,10 @@ export function saveBox(actorId: number, boxId: number, price: number, active: b
   if (total !== PPM) throw new UserError(`Odds must add up to exactly 100%. They add up to ${(total / 10000).toFixed(4)}%.`);
   if (bands.some((b) => b.odds_ppm < 0 || b.value_cents <= 0 || !b.label.trim())) throw new UserError('Every band needs a name, a value above zero and odds of zero or more.');
   if (!(price > 0)) throw new UserError('Enter a box price above zero.');
+  // House rule: every watch that can be pulled is worth at least half the box price.
+  const floor = Math.ceil(price / 2);
+  const under = bands.filter((b) => b.odds_ppm > 0 && b.value_cents < floor);
+  if (under.length) throw new UserError(`Every watch in a box must be worth at least half its price (${'$'}${(floor / 100).toLocaleString('en-US')}). Raise or set to zero odds: ${under.map((b) => b.label).join(', ')}.`);
   return tx((d) => {
     d.prepare('UPDATE boxes SET price_cents = ?, active = ? WHERE id = ?').run(price, active ? 1 : 0, boxId);
     const u = d.prepare('UPDATE bands SET label = ?, value_cents = ?, odds_ppm = ? WHERE id = ? AND box_id = ?');

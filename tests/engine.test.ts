@@ -45,7 +45,17 @@ test('every box has at least 15 watches on its wheel, each in stock, at about a 
     assert.ok(bands.every((b) => (b.stock ?? 0) >= 1), `${box.name} every pocket stocked`);
     const edge = fair.houseEdge(bands, box.price_cents);
     assert.ok(edge > 0.19 && edge < 0.21, `${box.name} edge ${edge}`);
+    const live = bands.filter((b) => b.odds_ppm > 0);
+    assert.ok(live.every((b) => b.value_cents * 2 >= box.price_cents), `${box.name}: every watch is worth at least half the box price`);
   }
+});
+
+test('the admin cannot save a box with a watch worth less than half its price', () => {
+  const box = E.getBox('statesman')!;
+  const bands = E.bandsFor(box.id).map((b) => ({ id: b.id, label: b.label, value_cents: b.value_cents, odds_ppm: b.odds_ppm }));
+  const cheap = bands.map((b, i) => (i === 1 ? { ...b, value_cents: 40000 } : b));
+  const admin = (db().prepare("SELECT id FROM users WHERE role = 'admin'").get() as { id: number }).id;
+  assert.throws(() => A.saveBox(admin, box.id, box.price_cents, true, cheap), /at least half its price/);
 });
 
 test('rolls are deterministic and land in the right band', () => {
@@ -185,12 +195,13 @@ test('commissions respect the monthly cap and the 90-day window', () => {
   db().prepare('UPDATE users SET referred_by = ? WHERE id IN (?, ?)').run(a, b, old);
   A.saveSettings(adminId(), { aff_monthly_cap_cents: '5000' });
   E.addTestCredit(b, 500000);
-  E.openBox(b, 'statesman'); E.openBox(b, 'statesman');
+  E.openBox(b, 'statesman'); restock(); E.openBox(b, 'statesman');
   const total = Number((db().prepare('SELECT SUM(amount_cents) AS v FROM commissions WHERE earner_id = ?').get(a) as { v: number }).v);
   assert.equal(total, 5000);
   A.saveSettings(adminId(), { aff_monthly_cap_cents: '250000' });
   db().prepare(`UPDATE users SET created_at = ? WHERE id = ?`).run(new Date(Date.now() - 100 * 86400_000).toISOString(), old);
   E.addTestCredit(old, 100000);
+  restock();
   const pid = E.openBox(old, 'railsplitter');
   assert.equal((db().prepare('SELECT COUNT(*) AS n FROM commissions WHERE pull_id = ?').get(pid) as { n: number }).n, 0);
 });
