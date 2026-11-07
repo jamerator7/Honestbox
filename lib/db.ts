@@ -106,6 +106,20 @@ function migrate(d: DatabaseSync) {
     authenticated INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL
   );
+  -- Photos: model photos are keyed by exact reference number (watch_id NULL); piece photos belong to one watch.
+  CREATE TABLE IF NOT EXISTS photos (
+    id INTEGER PRIMARY KEY,
+    reference TEXT NOT NULL,
+    watch_id INTEGER REFERENCES watches(id),
+    angle TEXT NOT NULL DEFAULT 'dial',
+    file TEXT NOT NULL,
+    thumb TEXT NOT NULL,
+    width INTEGER, height INTEGER,
+    sort INTEGER NOT NULL DEFAULT 0,
+    created_by INTEGER REFERENCES users(id),
+    created_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS photos_ref ON photos(reference, watch_id, sort);
   -- Provably fair seeds: the server seed's SHA-256 hash is shown before any pull; the seed itself is revealed on rotation.
   CREATE TABLE IF NOT EXISTS seeds (
     id INTEGER PRIMARY KEY,

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Shell, Flash } from '@/components/Shell.tsx';
-import { WatchArt, artFor } from '@/components/Mark.tsx';
+import { WatchPhoto } from '@/components/WatchPhoto.tsx';
+import { mainPhoto } from '@/lib/photos.ts';
 import { requireUser } from '@/lib/auth.ts';
 import { db } from '@/lib/db.ts';
 import { usd } from '@/lib/money.ts';
@@ -13,9 +14,9 @@ const LABEL: Record<string, string> = { vault: 'In your vault', sold_back: 'Sold
 export default async function Vault({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
   const sp = await searchParams;
   const user = await requireUser('/vault');
-  const pulls = db().prepare(`SELECT p.id, p.status, p.revealed, p.hold_until, p.created_at, p.value_cents, p.locked_cents, w.brand, w.model, w.market_cents, b.name AS box_name
+  const pulls = db().prepare(`SELECT p.id, p.status, p.revealed, p.hold_until, p.created_at, p.value_cents, p.locked_cents, p.watch_id, w.brand, w.model, w.reference, w.market_cents, b.name AS box_name
     FROM pulls p JOIN watches w ON w.id = p.watch_id JOIN boxes b ON b.id = p.box_id WHERE p.user_id = ? ORDER BY p.id DESC LIMIT 100`).all(user.id) as
-    { id: number; status: string; revealed: number; hold_until: string; created_at: string; value_cents: number; locked_cents: number | null; brand: string; model: string; market_cents: number; box_name: string }[];
+    { id: number; status: string; revealed: number; hold_until: string; created_at: string; value_cents: number; locked_cents: number | null; watch_id: number; brand: string; model: string; reference: string; market_cents: number; box_name: string }[];
   const orders = db().prepare(`SELECT s.id, s.status, s.tracking, s.created_at, w.brand, w.model, i.price_cents FROM shipments s JOIN watches w ON w.id = s.watch_id
     JOIN drop_items i ON i.id = s.source_id WHERE s.user_id = ? AND s.source = 'drop' ORDER BY s.id DESC`).all(user.id) as
     { id: number; status: string; tracking: string | null; brand: string; model: string; price_cents: number }[];
@@ -38,11 +39,10 @@ export default async function Vault({ searchParams }: { searchParams: Promise<Re
         )}
         <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))' }}>
           {pulls.map((p) => {
-            const art = artFor(p.brand);
             const days = Math.max(0, Math.ceil((Date.parse(p.hold_until) - Date.now()) / 86400_000));
             return (
               <Link key={p.id} href={`/pulls/${p.id}`} className={p.status === 'vault' ? 'cert stack' : 'card stack'} style={{ textDecoration: 'none', color: 'var(--ivory)', alignItems: 'center', textAlign: 'center', gap: 8 }}>
-                {p.revealed ? <WatchArt size={90} dial={art.dial} bezel={art.bezel} /> : <span className="numeral" style={{ width: 90, height: 90, fontSize: '0.8rem' }}>Sealed</span>}
+                {p.revealed ? <WatchPhoto src={mainPhoto(p.reference, p.watch_id)} brand={p.brand} size={110} alt={`${p.brand} ${p.model}`} /> : <span className="numeral" style={{ width: 90, height: 90, fontSize: '0.8rem' }}>Sealed</span>}
                 <span className="serif" style={{ fontWeight: 700, fontSize: '1.1rem' }}>{p.revealed ? `${p.brand} ${p.model}` : 'Not revealed yet'}</span>
                 <span className="mono brass">{p.revealed ? usd(p.locked_cents ?? p.market_cents) : '—'}</span>
                 {p.revealed && p.status === 'vault' ? (

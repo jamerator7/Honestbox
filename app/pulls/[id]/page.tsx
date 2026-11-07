@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Shell, Flash } from '@/components/Shell.tsx';
-import { WatchArt, artFor } from '@/components/Mark.tsx';
+import { WatchPhoto } from '@/components/WatchPhoto.tsx';
+import { mainPhoto } from '@/lib/photos.ts';
 import { Roulette, WheelFace } from '@/components/Roulette.tsx';
 import { pocketsOf, landedIndex } from '@/lib/wheel.ts';
 import { requireUser } from '@/lib/auth.ts';
@@ -21,7 +22,6 @@ export default async function PullPage({ params, searchParams }: { params: Promi
   const change = p.market_cents - p.value_cents;
   const changePct = p.value_cents ? (change / p.value_cents) * 100 : 0;
   const daysLeft = Math.max(0, Math.ceil((Date.parse(p.hold_until) - Date.now()) / 86400_000));
-  const art = artFor(p.brand);
   const reveal = revealAction.bind(null, p.id);
   const pockets = pocketsOf(p.odds_snapshot);
 
@@ -37,7 +37,7 @@ export default async function PullPage({ params, searchParams }: { params: Promi
             </div>
             <div className="cert stack" style={{ alignItems: 'center', gap: 14, textAlign: 'center', padding: '24px 20px' }}>
               <span className="pill pill-brass">{p.band_odds >= 500_000 ? 'Most common pull' : `${oneIn(p.band_odds)} pull`}</span>
-              <WatchArt size={150} dial={art.dial} bezel={art.bezel} />
+              <WatchPhoto src={mainPhoto(p.reference, p.watch_id, 'full')} brand={p.brand} size={220} alt={`${p.brand} ${p.model}, reference ${p.reference}`} />
               <div className="stack" style={{ gap: 4 }}>
                 <h1 style={{ fontSize: '2rem' }}>{p.brand} {p.model}</h1>
                 <span className="muted" style={{ fontSize: '0.9rem' }}>{[p.reference && `Ref. ${p.reference}`, p.size_mm && `${p.size_mm} mm`, p.year, p.condition, p.papers].filter(Boolean).join(' · ')}</span>

@@ -2,6 +2,13 @@
 // Auth: POST /auth/signin or /auth/signup returns a bearer token; send it as "Authorization: Bearer <token>".
 import { db } from './db.ts';
 import { pocketsOf } from './wheel.ts';
+import { mainPhoto, galleryFor, photoUrl } from './photos.ts';
+
+/** Photo paths are relative to the server ("/media/…"); the app prefixes its API host. */
+function bandPhoto(bandId: number) {
+  const w = db().prepare("SELECT reference FROM watches WHERE band_id = ? AND reference <> '' LIMIT 1").get(bandId) as { reference: string } | undefined;
+  return mainPhoto(w?.reference);
+}
 import * as E from './engine.ts';
 import { settleCommissions, affiliateSummary } from './affiliate.ts';
 import { expectedValueCents, houseEdge } from './fair.ts';
@@ -50,6 +57,7 @@ function pullShape(p: NonNullable<ReturnType<typeof E.getPull>>, s: Record<strin
     watch: p.revealed ? {
       brand: p.brand, model: p.model, reference: p.reference, year: p.year, sizeMm: p.size_mm, condition: p.condition, papers: p.papers,
       marketCents: p.market_cents, salesCount: p.sales_count, salesLowCents: p.sales_low_cents, salesHighCents: p.sales_high_cents,
+      photo: mainPhoto(p.reference, p.watch_id, 'full'),
     } : null,
     valueAtPullCents: p.revealed ? p.value_cents : null,
     lockedCents: p.locked_cents, lockedAt: p.locked_at,
@@ -139,7 +147,7 @@ route('GET', 'boxes/:slug', false, (c, slug) => {
   const seed = c.user ? E.activeSeed(c.user.id) : null; // the hash is on screen before the very first pull
   return ok({
     ...boxSummary(b, s),
-    bands: bands.map((x) => ({ label: x.label, valueCents: x.value_cents, oddsPpm: x.odds_ppm, inStock: x.stock ?? 0 })),
+    bands: bands.map((x) => ({ label: x.label, valueCents: x.value_cents, oddsPpm: x.odds_ppm, inStock: x.stock ?? 0, photo: bandPhoto(x.id) })),
     buyback: { creditPct: E.num(s, 'buyback_credit_bp') / 100, cashPct: E.num(s, 'buyback_cash_bp') / 100 },
     fair: seed ? { serverSeedHash: seed.server_hash, clientSeed: seed.client_seed, nextNonce: seed.next_nonce } : null,
   });
@@ -187,6 +195,7 @@ function dropShape(it: E.DropItem, me: number | null) {
   return {
     id: it.item_id, brand: it.brand, model: it.model, reference: it.reference, year: it.year, sizeMm: it.size_mm, condition: it.condition, papers: it.papers,
     priceCents: it.price_cents, marketCents: it.market_cents, salesCount: it.sales_count, authenticated: !!it.authenticated,
+    photos: galleryFor(it.reference, it.id).map((g) => ({ url: photoUrl(g.file), thumb: photoUrl(g.thumb), angle: g.angle })),
     status: it.item_status === 'held' ? (it.held_by === me ? 'held_by_you' : 'held') : it.item_status,
     heldUntil: it.held_by === me ? it.held_until : null, boughtByYou: !!me && it.sold_to === me,
   };

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { requireUser, requireAdmin, signIn, signUp, signOut } from '@/lib/auth.ts';
 import * as E from '@/lib/engine.ts';
 import * as A from '@/lib/admin.ts';
+import * as P from '@/lib/photos.ts';
 import { attempt, attemptAsync, back, str, int } from '@/lib/act.ts';
 import { dollarsToCents, usd } from '@/lib/money.ts';
 
@@ -198,4 +199,37 @@ export async function adminDropStart(f: FormData) {
   const me = await requireAdmin();
   attempt('/admin/drops', () => A.startDrop(me.id, Math.max(1, int(f, 'days') || 7)));
   back('/admin/drops', 'ok', 'New drop started.');
+}
+
+// ---------- admin: photos ----------
+export async function adminUploadPhotos(f: FormData) {
+  const me = await requireAdmin();
+  const reference = str(f, 'reference'), angle = str(f, 'angle') || 'dial';
+  const piece = str(f, 'piece'); const watchId = piece ? Number(piece) : null;
+  const files = f.getAll('photos').filter((x): x is File => typeof x === 'object' && 'arrayBuffer' in x && (x as File).size > 0);
+  const to = `/admin/photos#ref-${encodeURIComponent(reference)}`;
+  if (!files.length) back('/admin/photos', 'error', 'Choose at least one photo to upload.');
+  if (files.length > 12) back('/admin/photos', 'error', 'Upload up to 12 photos at a time.');
+  let n = 0;
+  for (const file of files) {
+    const bytes = Buffer.from(await file.arrayBuffer());
+    try { await P.savePhoto(me.id, { reference, watchId, angle, bytes }); n++; }
+    catch (e) { if (e instanceof E.UserError) back('/admin/photos', 'error', `${n} uploaded. ${file.name}: ${e.message}`); throw e; }
+  }
+  revalidatePath('/', 'layout');
+  back(to.split('#')[0], 'ok', `${n} photo${n === 1 ? '' : 's'} added to ${reference}.`);
+}
+
+export async function adminPhotoPrimary(f: FormData) {
+  const me = await requireAdmin();
+  attempt('/admin/photos', () => P.makePrimary(me.id, int(f, 'photo')));
+  revalidatePath('/', 'layout');
+  back('/admin/photos', 'ok', 'Main photo set.');
+}
+
+export async function adminPhotoDelete(f: FormData) {
+  const me = await requireAdmin();
+  attempt('/admin/photos', () => P.deletePhoto(me.id, int(f, 'photo')));
+  revalidatePath('/', 'layout');
+  back('/admin/photos', 'ok', 'Photo removed.');
 }

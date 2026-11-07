@@ -3,7 +3,7 @@ import { listBoxes } from '@/lib/engine.ts';
 
 export function AdminNav({ here }: { here: string }) {
   const links: [string, string][] = [
-    ['/admin', 'Overview'], ['/admin/inventory', 'Inventory'],
+    ['/admin', 'Overview'], ['/admin/inventory', 'Inventory'], ['/admin/photos', 'Photos'],
     ...listBoxes().map((b) => [`/admin/boxes/${b.slug}`, `Box ${b.numeral}`] as [string, string]),
     ['/admin/drops', 'Drops'], ['/admin/payouts', 'Payouts'], ['/admin/shipments', 'Shipping'], ['/admin/settings', 'Settings and affiliates'],
   ];

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Shell, Flash } from '@/components/Shell.tsx';
-import { WatchArt, artFor } from '@/components/Mark.tsx';
+import { WatchPhoto } from '@/components/WatchPhoto.tsx';
+import { mainPhoto } from '@/lib/photos.ts';
 import { currentDrop } from '@/lib/engine.ts';
 import { usd } from '@/lib/money.ts';
 
@@ -32,10 +33,9 @@ export default async function Drops({ searchParams }: { searchParams: Promise<Re
             <p className="muted" style={{ maxWidth: '40rem' }}>No box, no odds. Each piece has one fixed honest price, set at or under the average of its recent sales. Hold a piece for 10 minutes while you check out.</p>
             <div className="grid">
               {drop.items.map((it) => {
-                const art = artFor(it.brand);
                 return (
                   <Link key={it.item_id} href={`/drops/${it.item_id}`} className="cert stack" style={{ textDecoration: 'none', color: 'var(--ivory)', gap: 12, opacity: it.item_status === 'sold' ? 0.6 : 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'center' }}><WatchArt size={130} dial={art.dial} bezel={art.bezel} /></div>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}><WatchPhoto src={mainPhoto(it.reference, it.id)} brand={it.brand} size={170} alt={`${it.brand} ${it.model}`} /></div>
                     <span className="serif" style={{ fontWeight: 700, fontSize: '1.4rem' }}>{it.brand} {it.model}</span>
                     <span className="muted" style={{ fontSize: '0.85rem' }}>{[it.reference && `Ref. ${it.reference}`, it.year, it.papers].filter(Boolean).join(' · ')}</span>
                     <div className="between"><span className="muted" style={{ fontSize: '0.85rem' }}>Honest price</span><span className="mono brass" style={{ fontSize: '1.4rem' }}>{usd(it.price_cents)}</span></div>

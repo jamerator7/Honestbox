@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Shell, Flash } from '@/components/Shell.tsx';
-import { WatchArt, artFor } from '@/components/Mark.tsx';
+import { WatchPhoto } from '@/components/WatchPhoto.tsx';
+import { galleryFor, photoUrl } from '@/lib/photos.ts';
 import { AddressFields } from '@/components/AddressFields.tsx';
 import { currentUser } from '@/lib/auth.ts';
 import { dropItem, balance } from '@/lib/engine.ts';
@@ -17,7 +18,7 @@ export default async function DropItemPage({ params, searchParams }: { params: P
   const user = await currentUser();
   const mine = user && it.item_status === 'held' && it.held_by === user.id;
   const mins = it.held_until ? Math.max(0, Math.ceil((Date.parse(it.held_until) - Date.now()) / 60_000)) : 0;
-  const art = artFor(it.brand);
+  const gallery = galleryFor(it.reference, it.id);
   const bal = user ? balance(user.id) : 0;
   const under = it.market_cents - it.price_cents;
 
@@ -27,7 +28,8 @@ export default async function DropItemPage({ params, searchParams }: { params: P
         <Link href="/drops" className="muted" style={{ textDecoration: 'none' }}>← This week&apos;s drop</Link>
         <Flash sp={sp} />
         <div className="cert stack" style={{ gap: 14 }}>
-          <div style={{ display: 'flex', justifyContent: 'center' }}><WatchArt size={170} dial={art.dial} bezel={art.bezel} /></div>
+          <div style={{ display: 'flex', justifyContent: 'center' }}><WatchPhoto src={gallery[0] ? photoUrl(gallery[0].file) : null} brand={it.brand} size={260} alt={`${it.brand} ${it.model}, reference ${it.reference}`} /></div>
+          {gallery.length > 1 && <div className="row" style={{ justifyContent: 'center', gap: 8 }}>{gallery.slice(1, 7).map((g) => <a key={g.id} href={photoUrl(g.file)} target="_blank" rel="noreferrer"><img className="wphoto" src={photoUrl(g.thumb)} alt={`${it.brand} ${it.model}, ${g.angle.replace('-', ' ')}`} width={72} height={72} style={{ width: 72, height: 72, borderRadius: 10 }} loading="lazy" /></a>)}</div>}
           <div className="stack" style={{ gap: 4 }}>
             <h1 style={{ fontSize: '2rem' }}>{it.brand} {it.model}</h1>
             <span className="muted">{[it.reference && `Ref. ${it.reference}`, it.size_mm && `${it.size_mm} mm`, it.year].filter(Boolean).join(' · ')}</span>

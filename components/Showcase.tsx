@@ -62,7 +62,7 @@ export function Ticker({ pulls }: { pulls: Pull[] }) {
 
 export type TicketBox = {
   slug: string; name: string; numeral: string; priceCents: number; watches: number;
-  top: { label: string; valueCents: number; oddsPpm: number }; bigPpm: number; evCents: number; edge: number;
+  top: { label: string; valueCents: number; oddsPpm: number; photo?: string | null }; bigPpm: number; evCents: number; edge: number;
   closed?: string | null;
 };
 
@@ -82,7 +82,7 @@ export function Ticket({ b, hot, back, as = 'link' }: { b: TicketBox; hot?: bool
       <span className="name">{b.name}</span>
       <span className="price">{usd(b.priceCents)}</span>
       <span className="prize">
-        <WatchArt size={36} dial={art.dial} bezel={art.bezel} />
+        {b.top.photo ? <img className="wphoto" src={b.top.photo} alt="" width={44} height={44} style={{ width: 44, height: 44, borderRadius: 8, flex: 'none' }} loading="lazy" /> : <WatchArt size={36} dial={art.dial} bezel={art.bezel} />}
         <span className="stack" style={{ gap: 0, minWidth: 0 }}>
           <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Top prize</span>
           <span style={{ fontWeight: 600, lineHeight: 1.25 }}>{b.top.label}</span>

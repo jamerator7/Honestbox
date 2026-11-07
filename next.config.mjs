@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
-  serverExternalPackages: [],
-  experimental: { serverActions: { bodySizeLimit: '1mb' } },
+  serverExternalPackages: ['sharp'],
+  experimental: { serverActions: { bodySizeLimit: '120mb' } },
 };
 export default nextConfig;

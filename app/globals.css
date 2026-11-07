@@ -212,3 +212,13 @@ a.ticket:hover::after { transform: translateX(100%); }
   a.ticket:hover { transform: none; }
   .burst { display: none; }
 }
+
+/* admin photos */
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.photo-card { margin: 0; display: grid; gap: 6px; padding: 8px; border-radius: 10px; background: var(--deep); border: 1px solid var(--rule); }
+.photo-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; background: #000; display: block; }
+.photo-card figcaption { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 0.8rem; color: var(--muted); }
+.linkish { background: none; border: 0; padding: 0; color: var(--brass); font: inherit; cursor: pointer; text-decoration: underline; }
+.linkish.danger { color: var(--bad); }
+/* real watch photos on the site */
+.wphoto { display: block; object-fit: cover; border-radius: 16px; background: #000; box-shadow: 0 0 0 1px rgba(226,191,102,.35), 0 18px 40px -20px rgba(0,0,0,.8); }
